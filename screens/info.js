@@ -1,51 +1,179 @@
 import Paho from "paho-mqtt";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { useState, useEffect } from "react";
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, Button, View, TouchableOpacity, ScrollView } from 'react-native';
-import Task from './components/Task'
-import styles from './App.components.style'
+import { StatusBar } from "expo-status-bar";
+import {
+    StyleSheet,
+    Text,
+    Button,
+    View,
+    TouchableOpacity,
+    ScrollView,
+    Image,
+} from "react-native";
+// import Task from "./components/Task";
 
-client = new Paho.Client(
-  "broker.hivemq.com",
-  Number(8000),
-  `mqtt-async-test-${parseInt(Math.random() * 100)}`
-);
-
-export default function info() {
-
-  const [value, setValue] = useState(0);
-
-  function onMessage(message) {
-    if (message.destinationName === "mqtt-async-test/value")
-        setValue(parseInt(message.payloadString));
-  }
-
-  useEffect(() => {
-    client.connect( {
-      onSuccess: () => { 
-      console.log("Connected!");
-      client.subscribe("mqtt-async-test/value");
-      client.onMessageArrived = onMessage;
+const labels = [
+    {
+        code: "pm25",
+        name: "PM 2.5",
+        icon: require("./../assets/pm25.jpeg"),
     },
-    onFailure: () => {
-      console.log("Failed to connect!"); 
+    {
+        code: "mq7",
+        name: "MQ 7",
+        icon: require("./../assets/mq7.jpeg"),
+    },
+    {
+        code: "gas",
+        name: "Nồng độ khí gas",
+        icon: require("./../assets/gas.jpeg"),
+    },
+];
+
+export default function info({ route, navigation }) {
+    const { data } = route.params;
+
+    const [value, setValue] = useState({
+        pm25: null,
+        mq7: null,
+        gas: null,
+    });
+
+    function onMessage(message) {
+        console.log("message", message);
+        if (message.destinationName === data.code) {
+            const messageText = message.payloadString;
+            const messageArr = messageText.split("_");
+            try {
+                setValue({
+                    pm25: messageArr[0],
+                    mq7: messageArr[1],
+                    gas: messageArr[2],
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
     }
-  });
-  }, [])
 
-  function changeValue(c) {
-    const message = new Paho.Message((value + 1).toString());
-    message.destinationName = "mqtt-async-test/value";
-    c.send(message);
-  }
+    useEffect(() => {
+        client.onMessageArrived = onMessage;
+    }, []);
 
-  return (
-    <View style={styles.container}>
-     
-      {/* <Text>Value is: {value}</Text>
-      <Button onPress={() => { changeValue(client);} } title="Press Me"/>
-      <StatusBar style="auto" /> */}
-    </View>
-  );
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <Ionicons
+                    style={styles.backIcon}
+                    name="arrow-back"
+                    size={32}
+                    color="#21a3d0"
+                    onPress={() => {
+                        navigation.goBack();
+                    }}
+                />
+                <Text style={styles.titleText}>Thông số chi tiết</Text>
+            </View>
+            <Text style={styles.nameText}>{data.name}</Text>
+            <View style={styles.iconWrapper}>
+                <Image style={styles.icon} source={data.icon} />
+            </View>
+            <View>
+                {labels.map((item, index) => {
+                    return (
+                        <View style={styles.item}>
+                            <View style={styles.labelItem}>
+                                <View style={styles.labelIconWrapper}>
+                                    <Image
+                                        style={styles.labelIcon}
+                                        source={item.icon}
+                                    />
+                                </View>
+                                <Text style={styles.labelText}>
+                                    {item.name}
+                                </Text>
+                            </View>
+                            <View style={styles.contentItem}>
+                                <Text style={styles.contentText}>
+                                    {value[item.code] === null ? "_" : ""}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                })}
+            </View>
+        </View>
+    );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        paddingTop: 50,
+        padding: 20,
+        backgroundColor: "#eff7f8",
+        // alignItems: 'center',
+        // justifyContent: 'center',
+    },
+    header: {
+        padding: 10,
+        position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    backIcon: {
+        position: "absolute",
+        left: 0,
+    },
+    titleText: {
+        fontWeight: "600",
+        fontSize: 18,
+        color: "#21a3d0",
+    },
+    iconWrapper: {
+        width: "100%",
+        height: 180,
+    },
+    icon: {
+        width: "100%",
+        height: "100%",
+        borderRadius: 24,
+        overflow: "hidden",
+    },
+    nameText: {
+        fontWeight: "700",
+        fontSize: 20,
+        textAlign: "center",
+        marginBottom: 10,
+    },
+    item: {
+        paddingVertical: 10,
+    },
+    labelItem: {
+        flexDirection: "row",
+        paddingBottom: 5,
+    },
+    labelIconWrapper: {
+        width: 24,
+        height: 24,
+    },
+    labelIcon: {
+        width: "100%",
+        height: "100%",
+    },
+    labelText: {
+        fontSize: 15,
+        fontWeight: "600",
+        paddingHorizontal: 5,
+    },
+    contentItem: {
+        paddingLeft: 40,
+    },
+    contentText: {
+        fontStyle: "italic",
+        fontSize: 20,
+        fontWeight: "300",
+    },
+});
