@@ -43,7 +43,8 @@ export default function info({ route, navigation }) {
 
     function onMessage(message) {
         console.log("message", message);
-        if (message.destinationName === data.code) {
+        if (message.destinationName === "hoanpx") {
+            setValue(parseInt(message.payloadString));
             const messageText = message.payloadString;
             const messageArr = messageText.split("_");
             try {
@@ -57,9 +58,17 @@ export default function info({ route, navigation }) {
             }
         }
     }
-
     useEffect(() => {
-        client.onMessageArrived = onMessage;
+        client.connect({
+            onSuccess: () => {
+                console.log("Connected!");
+                client.subscribe("hoanpx");
+                client.onMessageArrived = onMessage;
+            },
+            onFailure: () => {
+                console.log("Failed to connect!");
+            },
+        });
     }, []);
 
     return (

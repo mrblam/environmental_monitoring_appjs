@@ -22,21 +22,13 @@ import AppNavigator from "./AppNavigator";
 const Stack = createNativeStackNavigator();
 
 client = new Paho.Client(
-    "broker.hivemq.com",
+    "test.mosquitto.org",
     Number(8000),
     `mqtt-async-test-${parseInt(Math.random() * 100)}`
 );
 
 export default function App() {
-    useEffect(() => {
-        client.connect({
-            onSuccess: () => {},
-            onFailure: () => {
-                console.log("Failed to connect!");
-            },
-        });
-    }, []);
-
+    
     function changeValue(c) {
         const message = new Paho.Message((value + 1).toString());
         message.destinationName = "mqtt-async-test/value";
