@@ -16,7 +16,7 @@ import Task from "../components/Task";
 const gates = [
     {
         code: "gate_1",
-        name: "Cổng Parabol huyền thoại",
+        name: "Cổng Parabol Giải Phóng",
         icon: require(`./../assets/gate_1.jpeg`),
     },
     {
@@ -42,7 +42,7 @@ export default function home({ navigation }) {
             <View style={styles.body}>
                 <Text style={styles.header}>
                     {" "}
-                    Mật độ giao thông tại các điểm{" "}
+                    Hệ thống quan trắc giao thông tại các điểm{" "}
                 </Text>
                 <View style={styles.items}>
                     {gates.map((item) => {

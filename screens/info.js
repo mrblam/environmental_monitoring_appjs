@@ -19,16 +19,19 @@ const labels = [
         code: "pm25",
         name: "PM 2.5",
         icon: require("./../assets/pm25.jpeg"),
+        unit: "ppm"
     },
     {
         code: "mq7",
-        name: "MQ 7",
+        name: "CO",
         icon: require("./../assets/mq7.jpeg"),
+        unit: "ppm"
     },
     {
         code: "gas",
-        name: "Nồng độ khí gas",
+        name: "Tiếng ồn",
         icon: require("./../assets/gas.jpeg"),
+        unit: "db"
     },
 ];
 
@@ -44,9 +47,10 @@ export default function info({ route, navigation }) {
     function onMessage(message) {
         console.log("message", message);
         if (message.destinationName === "hoanpx") {
-            setValue(parseInt(message.payloadString));
+            // setValue(parseInt(message.payloadString));
             const messageText = message.payloadString;
             const messageArr = messageText.split("_");
+            console.log('messageArr',messageArr)
             try {
                 setValue({
                     pm25: messageArr[0],
@@ -59,16 +63,20 @@ export default function info({ route, navigation }) {
         }
     }
     useEffect(() => {
-        client.connect({
-            onSuccess: () => {
-                console.log("Connected!");
-                client.subscribe("hoanpx");
-                client.onMessageArrived = onMessage;
-            },
-            onFailure: () => {
-                console.log("Failed to connect!");
-            },
-        });
+        try {
+            client.connect({
+                onSuccess: () => {
+                    console.log("Connected!");
+                    client.subscribe("hoanpx");
+                    client.onMessageArrived = onMessage;
+                },
+                onFailure: () => {
+                    console.log("Failed to connect!");
+                },
+            });
+        } catch (e) {
+            console.log('e',e)
+        }
     }, []);
 
     return (
@@ -106,7 +114,10 @@ export default function info({ route, navigation }) {
                             </View>
                             <View style={styles.contentItem}>
                                 <Text style={styles.contentText}>
-                                    {value[item.code] === null ? "_" : ""}
+                                    {value[item.code] === null ? "_" : value[item.code]}
+                                </Text>
+                                <Text style={styles.unitText}>
+                                    {item.unit}
                                 </Text>
                             </View>
                         </View>
@@ -179,10 +190,17 @@ const styles = StyleSheet.create({
     },
     contentItem: {
         paddingLeft: 40,
+        flexDirection: "row"
     },
     contentText: {
         fontStyle: "italic",
         fontSize: 20,
         fontWeight: "300",
     },
+    unitText: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: "green",
+        paddingLeft: 5
+    }
 });

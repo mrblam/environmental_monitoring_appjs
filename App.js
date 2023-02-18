@@ -22,7 +22,7 @@ import AppNavigator from "./AppNavigator";
 const Stack = createNativeStackNavigator();
 
 client = new Paho.Client(
-    "test.mosquitto.org",
+    "broker.hivemq.com",
     Number(8000),
     `mqtt-async-test-${parseInt(Math.random() * 100)}`
 );
