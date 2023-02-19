@@ -36,7 +36,7 @@ const gates = [
     },
 ];
 
-export default function home({ navigation }) {
+export default function Home({ navigation }) {
     return (
         <View style={styles.container}>
             <View style={styles.body}>

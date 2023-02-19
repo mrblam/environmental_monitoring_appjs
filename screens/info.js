@@ -35,7 +35,7 @@ const labels = [
     },
 ];
 
-export default function info({ route, navigation }) {
+export default function Info({ route, navigation }) {
     const { data } = route.params;
 
     const [value, setValue] = useState({
@@ -45,12 +45,10 @@ export default function info({ route, navigation }) {
     });
 
     function onMessage(message) {
-        console.log("message", message);
         if (message.destinationName === "hoanpx") {
             // setValue(parseInt(message.payloadString));
             const messageText = message.payloadString;
             const messageArr = messageText.split("_");
-            console.log('messageArr',messageArr)
             try {
                 setValue({
                     pm25: messageArr[0],
@@ -58,7 +56,6 @@ export default function info({ route, navigation }) {
                     gas: messageArr[2],
                 });
             } catch (e) {
-                console.log(e);
             }
         }
     }
@@ -66,16 +63,13 @@ export default function info({ route, navigation }) {
         try {
             client.connect({
                 onSuccess: () => {
-                    console.log("Connected!");
                     client.subscribe("hoanpx");
                     client.onMessageArrived = onMessage;
                 },
                 onFailure: () => {
-                    console.log("Failed to connect!");
                 },
             });
         } catch (e) {
-            console.log('e',e)
         }
     }, []);
 
