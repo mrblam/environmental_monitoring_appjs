@@ -24,7 +24,7 @@ const styleByLevel = {
         text: 'Thấp'
     },
     [LEVEL_MEDIUM]: {
-        color: '#fff',
+        color: 'grey',
         backgroundColor: 'yellow',
         text: 'Trung bình'
     },
@@ -35,41 +35,31 @@ const styleByLevel = {
     }
 }
 
-const Task = ({ data, navigation }) => {
+const Task = ({ data, navigation, message }) => {
     const [value, setValue] = useState({
         pm25: null,
         mq7: null,
         gas: null,
     });
 
-    function onMessage(message) {
-        if (message.destinationName === "hoanpx") {
-            // setValue(parseInt(message.payloadString));
-            const messageText = message.payloadString;
-            const messageArr = messageText.split("_");
+    useEffect(() => {
+        if (message) {
+            const messageJson = JSON.parse(message);
+            const gas_ppm = messageJson.gas;
+            const pm25 = messageJson.pm25;
+            const tieng_on = messageJson.tieng_on;
             try {
                 setValue({
-                    pm25: parseFloat(messageArr[0]),
-                    mq7: parseFloat(messageArr[1]),
-                    gas: parseFloat(messageArr[2]),
+                    pm25: parseFloat(pm25),
+                    mq7: parseFloat(gas_ppm),
+                    gas: parseFloat(tieng_on),
                 });
             } catch (e) {
             }
         }
-    }
-    useEffect(() => {
-        try {
-            client.connect({
-                onSuccess: () => {
-                    client.subscribe("hoanpx");
-                    client.onMessageArrived = onMessage;
-                },
-                onFailure: () => {
-                },
-            });
-        } catch (e) {
-        }
-    }, []);
+    }, [message])
+
+
     const {
         pm25,
         mq7,
@@ -95,13 +85,14 @@ const Task = ({ data, navigation }) => {
             onPress={() => {
                 navigation.navigate("info", {
                     data,
+                    message
                 });
             }}
         >
             <View style={styles.item}>
-                {level && <View style={{...styles.square, ...({backgroundColor: level.backgroundColor})}}>
-                    <Text style={{...styles.number, ...({color: level.color})}}>{level.text}</Text>
-                </View>}
+                {level ? <View style={{...styles.square, ...({backgroundColor: level.backgroundColor})}}>
+                    <Text numberOfLines={1} style={{...styles.number, ...({color: level.color})}}>{level.text}</Text>
+                </View> : <View style={styles.square}></View>}
                 <Text style={styles.content}>{data.name}</Text>
                 <View style={styles.iconWrapper}>
                     <Image style={styles.icon} source={data.icon} />
@@ -114,7 +105,7 @@ const Task = ({ data, navigation }) => {
 export default Task;
 const styles = StyleSheet.create({
     item: {
-        backgroundColor: "#fff",
+        backgroundColor: "#eff7f8",
         marginBottom: 15,
         paddingVertical: 10,
         paddingHorizontal: 10,
@@ -125,12 +116,11 @@ const styles = StyleSheet.create({
         // height: height / 2 - 80 > 180 ? 180 : height / 2 - 80,
     },
     square: {
-        width: 48,
-        height: 36,
+        height: 30,
         borderRadius: 15,
-        // backgroundColor: "#52d6f2",
         alignItems: "center",
         justifyContent: "center",
+        paddingHorizontal: 10,
     },
     number: {
         fontSize: 16,

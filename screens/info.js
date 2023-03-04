@@ -1,7 +1,7 @@
 import Paho from "paho-mqtt";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
     StyleSheet,
@@ -12,7 +12,7 @@ import {
     ScrollView,
     Image,
 } from "react-native";
-// import Task from "./components/Task";
+import { DataContext } from "../App";
 
 const labels = [
     {
@@ -36,42 +36,30 @@ const labels = [
 ];
 
 export default function Info({ route, navigation }) {
-    const { data } = route.params;
+    const { data, message } = route.params;
+    const {dataByTopic, updateDataByTopic} = useContext(DataContext);
 
     const [value, setValue] = useState({
         pm25: null,
         mq7: null,
         gas: null,
     });
-
-    function onMessage(message) {
-        if (message.destinationName === "hoanpx") {
-            // setValue(parseInt(message.payloadString));
-            const messageText = message.payloadString;
-            const messageArr = messageText.split("_");
+    useEffect(() => {
+        if (dataByTopic && dataByTopic[data.topic]) {
+            const messageJson = JSON.parse(dataByTopic[data.topic]);
+            const gas_ppm = messageJson.gas;
+            const pm25 = messageJson.pm25;
+            const tieng_on = messageJson.tieng_on;
             try {
                 setValue({
-                    pm25: messageArr[0],
-                    mq7: messageArr[1],
-                    gas: messageArr[2],
+                    pm25: parseFloat(pm25),
+                    mq7: parseFloat(gas_ppm),
+                    gas: parseFloat(tieng_on),
                 });
             } catch (e) {
             }
         }
-    }
-    useEffect(() => {
-        try {
-            client.connect({
-                onSuccess: () => {
-                    client.subscribe("hoanpx");
-                    client.onMessageArrived = onMessage;
-                },
-                onFailure: () => {
-                },
-            });
-        } catch (e) {
-        }
-    }, []);
+    }, [dataByTopic])
 
     return (
         <View style={styles.container}>

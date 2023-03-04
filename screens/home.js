@@ -1,6 +1,6 @@
 import Paho from "paho-mqtt";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
     StyleSheet,
@@ -11,32 +11,11 @@ import {
     ScrollView,
 } from "react-native";
 import Task from "../components/Task";
-// import styles from "../App.components.style";
+import { DataContext, gates } from "../App";
 
-const gates = [
-    {
-        code: "gate_1",
-        name: "Cổng Parabol Giải Phóng",
-        icon: require(`./../assets/gate_1.jpeg`),
-    },
-    {
-        code: "gate_2",
-        name: "Cổng Đại Cồ Việt",
-        icon: require(`./../assets/gate_2.jpeg`),
-    },
-    {
-        code: "gate_3",
-        name: "Cổng Trần Đại Nghĩa",
-        icon: require(`./../assets/gate_3.jpeg`),
-    },
-    {
-        code: "gate_4",
-        name: "Cổng dẫn vào khu Kí túc xá",
-        icon: require(`./../assets/gate_4.jpeg`),
-    },
-];
 
 export default function Home({ navigation }) {
+    const {dataByTopic, updateDataByTopic} = useContext(DataContext);
     return (
         <View style={styles.container}>
             <View style={styles.body}>
@@ -51,13 +30,10 @@ export default function Home({ navigation }) {
                                 navigation={navigation}
                                 data={item}
                                 key={item.code}
+                                message={dataByTopic ? dataByTopic[item.topic] : undefined}
                             />
                         );
                     })}
-                    {/* <Task></Task>
-                    <Task></Task>
-                    <Task></Task>
-                    <Task></Task> */}
                 </View>
             </View>
         </View>
@@ -67,7 +43,7 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#eff7f8",
+        backgroundColor: "#c1e4f5",
         // alignItems: 'center',
         // justifyContent: 'center',
     },
