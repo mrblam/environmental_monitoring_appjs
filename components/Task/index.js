@@ -44,7 +44,12 @@ const Task = ({ data, navigation, message }) => {
 
     useEffect(() => {
         if (message) {
+            // const message = message.replace(/[^\{\}\[\]0-9a-zA-Z\,\.\:]+/g, '')
+            // messasge = message.replace('►', '');
+            // let json_object = JSON.parse(message);
+            console.log(message)
             const messageJson = JSON.parse(message);
+
             const gas_ppm = messageJson.gas;
             const pm25 = messageJson.pm25;
             const tieng_on = messageJson.tieng_on;

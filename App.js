@@ -75,7 +75,13 @@ export default function App() {
     }, []);
 
     function onMessage(message) {
-        updateDataByTopic(message.destinationName, message.payloadString)
+    //   updateDataByTopic(message.destinationName, message.payloadString.replace("►", ""));/
+        updateDataByTopic(message.destinationName, message.payloadString.substring(0, message.payloadString.length - 1))//runok
+        // updateDataByTopic(message.destinationName, message.payloadString.replace("}", ""));
+        // console.log(message.payloadString.replace("►",""));
+    //    console.log(message.payloadString.substring(0, message.payloadString.length - 1));
+        // message = message.payloadString.replace('►', '');
+        console.log(message.payloadString.includes("►"))
     }
     return (
         <DataContext.Provider value={{
